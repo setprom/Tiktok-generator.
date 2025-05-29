@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TikTok Video Generator</title>
+</head>
+<body>
+  <h1>Subí un video para agregar subtítulos</h1>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" name="video" accept="video/*" required />
+    <button type="submit">Subir y Procesar</button>
+  </form>
+  <p id="status"></p>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const status = document.getElementById('status');
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const data = new FormData(form);
+      status.textContent = 'Procesando...';
+
+      try {
+        const res = await fetch('/upload', {
+          method: 'POST',
+          body: data
+        });
+        if (!res.ok) throw new Error('Error en el servidor');
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'video_subtitulado.mp4';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        status.textContent = '¡Video procesado! Se descargó automáticamente.';
+      } catch (err) {
+        status.textContent = 'Error: ' + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
+add public/index.html
